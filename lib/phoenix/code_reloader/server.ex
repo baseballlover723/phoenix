@@ -210,14 +210,21 @@ defmodule Phoenix.CodeReloader.Server do
   defp mix_compile_unless_stale_config(compilers, purge) do
     manifests = Mix.Tasks.Compile.Elixir.manifests()
     configs = Mix.Project.config_files()
+    IO.inspect(configs, label: "configs")
+    IO.inspect(manifests, label: "manifests")
+    stale = Mix.Utils.extract_stale(configs, manifests)
+    IO.inspect(stale, label: "stale")
 
-    case Mix.Utils.extract_stale(configs, manifests) do
+    case stale do
       [] ->
+        IO.puts("[] ****************")
         purge = purge.()
+        IO.inspect(purge, label: "purge")
         mix_compile(compilers)
         purge
 
       files ->
+        IO.inspect(files, label: "files raising error")
         raise """
         could not compile application: #{Mix.Project.config()[:app]}.
 
